@@ -1,10 +1,12 @@
 from timeit import timeit
 from hashhash import Hash
 
-itr = 10
+itr = 100
 endCodeString = '''\
+import random
+myHash = hashlib.Hash(size)
 keyArr = []
-for i in range(size):
+for i in range(size/2):
 	key = str(random.random())
 	myHash.set(key,str(random.random()))
 	keyArr.append(key)
@@ -19,29 +21,25 @@ def calcTime(string):
 	print '\n\n\nTOTAL =',totaltime
 	print 'AVG =',float(totaltime)/itr,'\n\n\n'
 
-# BASELINE
+# BASIC
 basichash = '''\
 # PARAMS
 size = 1000
 # CODE
-import basichash
-import random
-myHash = basichash.Hash(size)
+import basichash as hashlib
 ''' + endCodeString
 calcTime(basichash)
 
-# TIMED TESTS
+# HASH
 hashhash = '''\
 # PARAMS
 size = 1000
 # CODE
-import hashhash
-import random
-myHash = hashhash.Hash(size)
+import hashhash as hashlib
 ''' + endCodeString
 calcTime(hashhash)
 
-# FUNCTIONALITY TESTS
+# SANITY TESTS
 myHash = Hash(2)
 print myHash.set("k1",{'test':'it'})
 print myHash.load()

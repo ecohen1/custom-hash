@@ -10,8 +10,7 @@ class Hash:
 	
 	def set(self,key,value):
 		if isinstance(key,int) or isinstance(key,str):
-			hashmod = hash(key) % 10
-			hashindex = int( hashmod*(self.size/10) )
+			hashindex = hash(key) % self.size
 			for index,k in enumerate(self.keys[hashindex:len(self.keys)]):
 				if k is None:
 					self.keys[index + hashindex] = key
@@ -28,20 +27,22 @@ class Hash:
 
 	def get(self,key):
 		if isinstance(key,int) or isinstance(key,str):
-			hashmod = hash(key) % 10
-			hashindex = int( hashmod*(self.size/10) )
+			hashindex = hash(key) % self.size
 			for index,k in enumerate(self.keys[hashindex:len(self.keys)]):
 				if k == key:
 					return self.values[index + hashindex]
+				elif k is None:
+					return None
 			for index,k in enumerate(self.keys[0:hashindex]):
 				if k == key:
 					return self.values[index]
+				elif k is None:
+					return None
 		return None
 
 	def delete(self,key):
 		if isinstance(key,int) or isinstance(key,str):
-			hashmod = hash(key) % 10
-			hashindex = int( hashmod*(self.size/10) )
+			hashindex = hash(key) % self.size
 			for index,k in enumerate(self.keys[hashindex:len(self.keys)]):
 				if k == key:
 					value = self.values[index + hashindex]
