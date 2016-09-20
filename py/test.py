@@ -1,55 +1,45 @@
 from timeit import timeit
-from myhash import Hash
+from hashhash import Hash
 
-itr = 100
+itr = 10
+endCodeString = '''\
+keyArr = []
+for i in range(size):
+	key = str(random.random())
+	myHash.set(key,str(random.random()))
+	keyArr.append(key)
+for key in keyArr:
+	myHash.get(key)
+for key in keyArr:
+	myHash.delete(key)
+# END'''
+
+def calcTime(string):
+	totaltime = timeit(string,number=itr)
+	print '\n\n\nTOTAL =',totaltime
+	print 'AVG =',float(totaltime)/itr,'\n\n\n'
 
 # BASELINE
-totaltime = 0
-stmt = '''\
+basichash = '''\
 # PARAMS
 size = 1000
 # CODE
-from basichash import BasicHash
+import basichash
 import random
-myHash = BasicHash(size)
-keyArr = []
-for i in range(size):
-	key = str(random.random())
-	myHash.set(key,str(random.random()))
-	keyArr.append(key)
-for key in keyArr:
-	myHash.get(key)
-for key in keyArr:
-	myHash.delete(key)
-# END'''
-
-totaltime = timeit(stmt,number=itr)
-print '\n\n\nTOTAL =',totaltime
-print 'AVG =',float(totaltime)/itr,'\n\n\n'
+myHash = basichash.Hash(size)
+''' + endCodeString
+calcTime(basichash)
 
 # TIMED TESTS
-totaltime = 0
-stmt = '''\
+hashhash = '''\
 # PARAMS
 size = 1000
 # CODE
-from myhash import Hash
+import hashhash
 import random
-myHash = Hash(size)
-keyArr = []
-for i in range(size):
-	key = str(random.random())
-	myHash.set(key,str(random.random()))
-	keyArr.append(key)
-for key in keyArr:
-	myHash.get(key)
-for key in keyArr:
-	myHash.delete(key)
-# END'''
-
-totaltime = timeit(stmt,number=itr)
-print '\n\n\nTOTAL =',totaltime
-print 'AVG =',float(totaltime)/itr,'\n\n\n'
+myHash = hashhash.Hash(size)
+''' + endCodeString
+calcTime(hashhash)
 
 # FUNCTIONALITY TESTS
 myHash = Hash(2)

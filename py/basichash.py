@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-class BasicHash:
+class Hash:
 
 	def __init__(self,size):
 		self.size = size
