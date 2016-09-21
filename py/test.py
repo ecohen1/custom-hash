@@ -1,99 +1,122 @@
+#! /usr/bin/env python
+
+	# This test script loads both hash table implementations and performs a randomized sequence of actions on them.
+	# Each action (either SET, GET, or DELETE) is timed and recorded. 
+	# The average of each, and the average of all three, are presented for each implementation, as well as the number of collisions.
+
 from time import time
 import random
 import basichash
-import hashhash
-import twochoicehash
+import goodhash
 
-itr = 100.0
-size = 10000
-ops = 5000
+# CONSTANTS
 SET = 0
 GET = 1
 DEL = 2
-setTime = 0
-getTime = 0
-delTime = 0
-setOps = 0
-getOps = 0
-delOps = 0
-actions = [ int(10*random.random()) % 3 for i in range(ops) ]
+itr = 100.0 # number of times to repeat the action sequence to obtain an accurate estimate
+size = 10000 # size of the hashtable
+ops = 25000 # number of operations
 
-# SANITY TESTS
+# VARIABLES
+setTime = 0 # total time spent setting
+getTime = 0 # total time spent getting
+delTime = 0 # total time spent deleting
+setOps = 0.0 # number of setting operations
+getOps = 0.0 # number of getting operations
+delOps = 0.0 # number of deleting operations
+actions = [ int(10*random.random()) % 3 for i in range(ops) ] # generate randomized set/get/del sequence, but same between the two implementations
+
+# SANITY TEST
 def sanityTest(Hash):
-	# myHash = Hash
-	# print myHash.set("k1",{'test':'it'})
-	# print myHash.load()
-	# print myHash.set(1,2)
-	# print myHash.load()
-	# print myHash.set(-1,"z")
-	# print myHash.load()
-	# print myHash.get("k1")
-	# print myHash.get(1)
-	# print myHash.get(-1)
-	# print myHash.delete("k1")
-	# print myHash.load()
-	# print myHash.get("k1")
-	# print myHash.get(1)
-	# print myHash.delete(1)
-	# print myHash.load()
-	# print myHash.get(1)
+	myHash = Hash
+	k2 = 1
+	k3 = -1
+	print myHash.get("k1")					# None
+	print myHash.set("k1",1)				# True
+	print myHash.load()						# 0.5
+	print myHash.set(k2,"2")				# True
+	print myHash.load()						# 1.0
+	print myHash.set(k3,"doesn't work")		# False
+	print myHash.load()						# 1.0
+	print myHash.get("k1")					# 1
+	print myHash.get(k2)					# 2
+	print myHash.get(k3)					# None
+	print myHash.delete("k1")				# 1
+	print myHash.load()						# 0.5
+	print myHash.get("k1")					# None
+	print myHash.get(k2)					# 2
+	print myHash.delete(k2)					# 2
+	print myHash.load()						# 0.0
+	print myHash.get(k2)					# None
 	print '\n\n\n'
 
+# TEST BOTH HASH CLASSES
 def initHash(hashType):
 	global itr,size,ops,SET,GET,DEL,setTime,getTime,delTime,setOps,getOps,delOps
 	print hashType
+	# perform time calculations and basic sanity tests on each implementation
 	if hashType == 'basichash':
 		calcTime(basichash.Hash(size))
-		sanityTest(basichash.Hash(size))
-	elif hashType == 'hashhash':
-		calcTime(hashhash.Hash(size))
-		sanityTest(hashhash.Hash(size))
-	elif hashType == 'twochoicehash':
-		calcTime(twochoicehash.Hash(size))
-		sanityTest(twochoicehash.Hash(size))
+		sanityTest(basichash.Hash(2))
+	elif hashType == 'goodhash':
+		calcTime(goodhash.Hash(size))
+		sanityTest(goodhash.Hash(2))
 
-def calcTime(Hash):
+# ESTIMATE THE RUNTIMES FOR EACH IMPLEMENTATION
+def calcTime(myHash):
 	global itr,size,ops,SET,GET,DEL,setTime,getTime,delTime,setOps,getOps,delOps,actions
-	myHash = Hash
+	setTime = 0
+	getTime = 0
+	delTime = 0
 	keyArr = []
 	for i in range(ops):
 		action = actions[i]
-		if action == SET:
+		if action == SET: #add element to the hash table
 			setOps += 1
+			# generate random keys and values
 			key = str(random.random())
 			val = str(random.random())
+			# time the operation
 			startTime = time()
 			result = myHash.set(key,val)
 			setTime += time() - startTime
+			# add to a list of valid keys
 			if result:
 				keyArr.append(key)
-		elif action == GET:
+		elif action == GET: # retrieve element from the table
+			# check that there are keys for us to search for
 			if len(keyArr) != 0:
 				getOps += 1
+				# find a key
 				keyIndex = int(size*random.random()) % len(keyArr)
 				key = keyArr[keyIndex]
+				# time the operation
 				startTime = time()
 				myHash.get(key)
 				getTime += time() - startTime
-		elif action == DEL:
+		elif action == DEL: # delete element from the table
+			# check that there are keys for us to search for
 			if len(keyArr) != 0:
 				delOps += 1
+				# find a key
 				keyIndex = int(size*random.random()) % len(keyArr)
 				key = keyArr[keyIndex]
+				# time the operation
 				startTime = time()
 				myHash.delete(key)
 				delTime += time() - startTime
+				# remove from our valid keys list
 				keyArr.remove(key)
 
-	print 'not found =', myHash.notfound
-	print 'SET =',setTime/(setOps)
-	print 'GET =',getTime/(getOps)
-	print 'DEL =',delTime/(delOps)
-	print 'AVG =',float(setTime+getTime+delTime)/3,'\n\n\n'
+	# print performance characteristics
+	performanceArr = [setTime/setOps, getTime/getOps, delTime/delOps]
+	print 'collisions:', myHash.collisions # collisions when setting/getting/deleting
+	print 'SET =',setTime/setOps # average time to set a key/value pair
+	print 'GET =',getTime/getOps # average time to get a value
+	print 'DEL =',delTime/delOps # average time to delete a key/value pair
+	print 'AVG =',sum(performanceArr)/len(performanceArr),'\n\n\n' # average operation time
 
-hashTypeArr = ['basichash','hashhash','twochoicehash']
+hashTypeArr = ['basichash','goodhash']
 
 for hashType in hashTypeArr:
 	initHash(hashType)
-
-# True, .5, True, 1, False, 1, {...}, 2, None, {...}, .5, None, 2, 2, 0, None
