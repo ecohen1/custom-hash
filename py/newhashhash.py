@@ -13,9 +13,11 @@ class Hash:
 	def set(self,key,value):
 		if isinstance(key,int) or isinstance(key,str):
 			hashindex = hash(key) % self.size
-			for index, k in enumerate(self.keys[hashindex:len(self.keys)]):
-			# for index in range(len(self.keys[hashindex:len(self.keys)])):
-			# 	k = self.keys[hashindex:len(self.keys)][index]
+			for index in range(len(self.keys[hashindex:len(self.keys)])):
+				quadIndex = index**2
+				if quadIndex >= len(self.keys[hashindex:len(self.keys)]):
+					break
+				k = self.keys[hashindex:len(self.keys)][quadIndex]
 				self.looking += 1
 				if k is None:
 					print index+hashindex
@@ -23,9 +25,11 @@ class Hash:
 					self.values[index + hashindex] = value
 					self.items += 1
 					return True
-			for index, k in enumerate(self.keys[0:hashindex]):
-			# for index in range(len(self.keys[0:hashindex])):
-			# 	k = self.keys[0:hashindex][index]
+			for index in range(len(self.keys[0:hashindex])):
+				quadIndex = index**2
+				if quadIndex >= len(self.keys[0:hashindex]):
+					break
+				k = self.keys[hashindex:len(self.keys)][quadIndex]				
 				self.looking += 1
 				if k is None:
 					print index+hashindex
